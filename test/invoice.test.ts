@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { UnknownRegionError, ValidationError } from "../src/errors.js";
+import type { Customer } from "../src/customer.js";
 import { computeTotals, transitionInvoice } from "../src/invoice.js";
 import { invoice, lineItem } from "./fixtures.js";
 
@@ -74,6 +75,45 @@ describe("computeTotals", () => {
 
   it("surfaces unknown regions", () => {
     expect(() => computeTotals(invoice({ region: "XX" }))).toThrow(UnknownRegionError);
+  });
+});
+
+describe("computeTotals with tax exemptions", () => {
+  const acme: Customer = {
+    id: "cus_acme",
+    name: "Acme",
+    email: "billing@acme.test",
+    region: "US-CA",
+  };
+  const items = [lineItem({ sku: "A", unitPrice: 10_000 })];
+
+  it("charges tax when the customer has no exemption", () => {
+    expect(computeTotals(invoice({ lineItems: items }), acme).tax).toBe(725);
+  });
+
+  it("skips tax for exempt customers", () => {
+    const exempt = { ...acme, taxExemption: { certificateId: "CA-RESALE-1" } };
+    const totals = computeTotals(invoice({ lineItems: items }), exempt);
+    expect(totals.tax).toBe(0);
+    expect(totals.total).toBe(10_000);
+  });
+
+  it("evaluates the exemption as of the issue date", () => {
+    const lapsed = {
+      ...acme,
+      taxExemption: { certificateId: "CA-RESALE-1", expiresAt: new Date("2024-02-01") },
+    };
+    const totals = computeTotals(
+      invoice({ lineItems: items, issuedAt: new Date("2024-03-01") }),
+      lapsed,
+    );
+    expect(totals.tax).toBe(725);
+  });
+
+  it("rejects a customer that doesn't own the invoice", () => {
+    expect(() =>
+      computeTotals(invoice({ customerId: "cus_other" }), acme),
+    ).toThrow(ValidationError);
   });
 });
 

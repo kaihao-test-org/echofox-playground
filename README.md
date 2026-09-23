@@ -30,6 +30,10 @@ Node 20+ is required.
 - **Tax** rates live in `TAX_RATES_BPS`, keyed by region code (`US-CA`, `DE`,
   ...). `calculateTax` throws `UnknownRegionError` for regions we don't have
   a rate for.
+- **Tax exemptions**: customers with a verified certificate on file
+  (`taxExemption`) aren't charged tax while the certificate is valid. Pass
+  the customer to `computeTotals(invoice, customer)` to apply it, or use
+  `estimateTax` for the checkout preview.
 - **Invoices** move `draft -> issued -> paid`, and can be voided before they
   are paid.
 
