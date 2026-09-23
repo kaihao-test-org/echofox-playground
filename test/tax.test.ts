@@ -16,8 +16,13 @@ describe("resolveTaxRate", () => {
     expect(resolveTaxRate("US-OR")).toBe(0);
   });
 
-  it("throws for unknown regions", () => {
-    expect(() => resolveTaxRate("ZZ")).toThrow(UnknownRegionError);
+  it("returns null for unknown regions", () => {
+    expect(resolveTaxRate("ZZ")).toBeNull();
+    expect(resolveTaxRate("")).toBeNull();
+  });
+
+  it("returns null for Object.prototype keys", () => {
+    expect(resolveTaxRate("toString")).toBeNull();
   });
 });
 
