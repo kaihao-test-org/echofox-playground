@@ -21,8 +21,9 @@ Node 20+ is required.
 ## Concepts
 
 - **Money** is always an integer number of cents (`Cents`). Use `parseMoney`
-  to read user input and `formatMoney` to display amounts. Percentages are
-  applied with `percentOf(amount, basisPoints)`, where 725 bps = 7.25%.
+  to read user input and `formatMoney` to display amounts, or `formatCents`
+  to display amounts as `$1,234.56`. Percentages are applied with
+  `percentOf(amount, basisPoints)`, where 725 bps = 7.25%.
 - **Line items** carry a `unitPrice` in cents and an integer `quantity`.
   Lines are taxable unless `taxable: false` is set.
 - **Discounts** are either `fixed` (cents) or `percentage` (basis points) and
