@@ -37,3 +37,7 @@ Node 20+ is required.
 
 Discounts are applied to the taxable portion of an invoice first. This is
 what finance files today; talk to them before changing `computeTotals`.
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
