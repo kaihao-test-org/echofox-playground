@@ -93,3 +93,13 @@ export function formatMoney(amount: Cents, currency = "USD"): string {
   const fraction = String(abs % 100).padStart(2, "0");
   return `${sign}${whole}.${fraction} ${currency}`;
 }
+
+/** Formats cents as a USD dollar string, e.g. `formatCents(123456)` -> "$1,234.56". */
+export function formatCents(amount: Cents): string {
+  assertCents(amount);
+  const sign = amount < 0 ? "-" : "";
+  const abs = Math.abs(amount);
+  const whole = Math.floor(abs / 100).toLocaleString("en-US");
+  const fraction = String(abs % 100).padStart(2, "0");
+  return `${sign}$${whole}.${fraction}`;
+}
