@@ -54,11 +54,24 @@ describe("InMemoryInvoiceRepository", () => {
       expect(repo.list({ status: "paid" }).items.map((i) => i.id)).toEqual(["inv_a"]);
     });
 
-    it("paginates", () => {
-      const page = repo.list({ page: 2, pageSize: 3 });
-      expect(page.items.map((i) => i.id)).toEqual(["inv_a"]);
-      expect(page.totalItems).toBe(4);
-      expect(page.totalPages).toBe(2);
+    it("returns the first page with a cursor", () => {
+      const page = repo.list({ limit: 2 });
+      expect(page.items.map((i) => i.id)).toEqual(["inv_c", "inv_d"]);
+      expect(page.nextCursor).toEqual(expect.any(String));
+    });
+
+    it("continues from the cursor without repeating invoices", () => {
+      const first = repo.list({ limit: 2 });
+      const second = repo.list({ limit: 2, cursor: first.nextCursor });
+      const seen = first.items.map((i) => i.id);
+      expect(second.items.every((i) => !seen.includes(i.id))).toBe(true);
+      expect(second.nextCursor).toBeNull();
+    });
+
+    it("applies filters before paginating", () => {
+      const page = repo.list({ customerId: "cus_acme", limit: 10 });
+      expect(page.items.map((i) => i.id)).toEqual(["inv_c", "inv_d", "inv_a"]);
+      expect(page.nextCursor).toBeNull();
     });
   });
 });
