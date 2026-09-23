@@ -15,7 +15,7 @@ Everything else.
 - [x] s1. Create notes/alpha.md containing the word alpha  (check: `grep -q alpha notes/alpha.md`)
   Create the file notes/alpha.md. It contains the word alpha on one line.
   Files: `notes/alpha.md`
-- [ ] s2. Create notes/beta.md containing the word beta  (check: `grep -q beta notes/beta.md`)
+- [x] s2. Create notes/beta.md containing the word beta  (check: `grep -q beta notes/beta.md`)
   Create the file notes/beta.md. It contains the word beta on one line.
   Files: `notes/beta.md`
 
