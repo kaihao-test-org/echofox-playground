@@ -1,5 +1,7 @@
+import type { Customer } from "./customer.js";
 import { discountAmount, type Discount } from "./discount.js";
 import { ValidationError } from "./errors.js";
+import { isTaxExempt } from "./exemptions.js";
 import { sumLineItems, sumTaxableLineItems, type LineItem } from "./lineItem.js";
 import { addMoney, subtractMoney, ZERO, type Cents } from "./money.js";
 import { calculateTax } from "./tax.js";
@@ -26,9 +28,18 @@ export interface InvoiceTotals {
   total: Cents;
 }
 
-export function computeTotals(invoice: Invoice): InvoiceTotals {
+/**
+ * Computes invoice totals. Pass the invoice's customer to apply their tax
+ * exemption; exemptions are evaluated as of the invoice's `issuedAt`.
+ */
+export function computeTotals(invoice: Invoice, customer?: Customer): InvoiceTotals {
   if (invoice.lineItems.length === 0) {
     throw new ValidationError(`invoice ${invoice.id} has no line items`);
+  }
+  if (customer !== undefined && customer.id !== invoice.customerId) {
+    throw new ValidationError(
+      `customer ${customer.id} does not own invoice ${invoice.id}`,
+    );
   }
   const subtotal = sumLineItems(invoice.lineItems);
   const taxableSubtotal = sumTaxableLineItems(invoice.lineItems);
@@ -37,7 +48,8 @@ export function computeTotals(invoice: Invoice): InvoiceTotals {
   // Discounts reduce the taxable portion first. This matches how finance
   // files returns today; see README "Tax policy" before changing it.
   const taxableAmount = Math.max(ZERO, subtractMoney(taxableSubtotal, discount));
-  const tax = calculateTax(taxableAmount, invoice.region);
+  const exempt = customer !== undefined && isTaxExempt(customer, invoice.issuedAt);
+  const tax = exempt ? ZERO : calculateTax(taxableAmount, invoice.region);
 
   return {
     subtotal,
