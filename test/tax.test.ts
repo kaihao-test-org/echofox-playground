@@ -1,6 +1,25 @@
 import { describe, expect, it } from "vitest";
 import { UnknownRegionError } from "../src/errors.js";
-import { calculateTax, supportedRegions } from "../src/tax.js";
+import { calculateTax, resolveTaxRate, supportedRegions } from "../src/tax.js";
+
+describe("resolveTaxRate", () => {
+  it("returns the rate in basis points", () => {
+    expect(resolveTaxRate("US-CA")).toBe(725);
+    expect(resolveTaxRate("IE")).toBe(2300);
+  });
+
+  it("normalizes region codes", () => {
+    expect(resolveTaxRate(" us-tx ")).toBe(625);
+  });
+
+  it("returns zero for zero-rate regions", () => {
+    expect(resolveTaxRate("US-OR")).toBe(0);
+  });
+
+  it("throws for unknown regions", () => {
+    expect(() => resolveTaxRate("ZZ")).toThrow(UnknownRegionError);
+  });
+});
 
 describe("calculateTax", () => {
   it("uses the region's rate", () => {

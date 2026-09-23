@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { ValidationError } from "./errors.js";
+import { normalizeRegion } from "./tax.js";
 
 export interface Customer {
   id: string;
@@ -26,6 +27,6 @@ export function createCustomer(input: NewCustomer, id: string = `cus_${randomUUI
     id,
     name,
     email,
-    region: input.region.trim().toUpperCase(),
+    region: normalizeRegion(input.region),
   };
 }
