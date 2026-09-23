@@ -32,15 +32,17 @@ export function normalizeRegion(region: string): string {
 /**
  * Looks up the tax rate for `region`, in basis points.
  *
- * @throws UnknownRegionError if we have no rate for the region.
+ * Returns `null` when we have no rate for the region. A missing rate is an
+ * expected case for some callers (e.g. quoting a prospect in a region we
+ * haven't registered in yet), so it's up to the caller to decide whether
+ * that's an error.
  */
-export function resolveTaxRate(region: string): number {
+export function resolveTaxRate(region: string): number | null {
   const key = normalizeRegion(region);
-  const rateBps = Object.hasOwn(TAX_RATES_BPS, key) ? TAX_RATES_BPS[key] : undefined;
-  if (rateBps === undefined) {
-    throw new UnknownRegionError(region);
+  if (!Object.hasOwn(TAX_RATES_BPS, key)) {
+    return null;
   }
-  return rateBps;
+  return TAX_RATES_BPS[key] ?? null;
 }
 
 /**
@@ -49,5 +51,9 @@ export function resolveTaxRate(region: string): number {
  * @throws UnknownRegionError if we have no rate for the region.
  */
 export function calculateTax(taxableAmount: Cents, region: string): Cents {
-  return percentOf(taxableAmount, resolveTaxRate(region));
+  const rateBps = resolveTaxRate(region);
+  if (rateBps === null) {
+    throw new UnknownRegionError(region);
+  }
+  return percentOf(taxableAmount, rateBps);
 }
