@@ -27,6 +27,9 @@ Node 20+ is required.
   Lines are taxable unless `taxable: false` is set.
 - **Discounts** are either `fixed` (cents) or `percentage` (basis points) and
   can never exceed the subtotal.
+- **Discount codes** (`DiscountCodeRegistry`) are promo codes with a
+  percentage off, optional expiry, redemption limit and minimum subtotal.
+  `redeem()` returns a fixed `Discount` to attach to the invoice.
 - **Tax** rates live in `TAX_RATES_BPS`, keyed by region code (`US-CA`, `DE`,
   ...). `calculateTax` throws `UnknownRegionError` for regions we don't have
   a rate for.

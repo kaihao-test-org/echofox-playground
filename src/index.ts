@@ -2,6 +2,7 @@ export * from "./errors.js";
 export * from "./money.js";
 export * from "./lineItem.js";
 export * from "./discount.js";
+export * from "./discountCodes.js";
 export * from "./tax.js";
 export * from "./customer.js";
 export * from "./invoice.js";
