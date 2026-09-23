@@ -24,16 +24,30 @@ export function supportedRegions(): string[] {
   return Object.keys(TAX_RATES_BPS).sort();
 }
 
+/** Canonical form of a region code: trimmed and upper-cased. */
+export function normalizeRegion(region: string): string {
+  return region.trim().toUpperCase();
+}
+
+/**
+ * Looks up the tax rate for `region`, in basis points.
+ *
+ * @throws UnknownRegionError if we have no rate for the region.
+ */
+export function resolveTaxRate(region: string): number {
+  const key = normalizeRegion(region);
+  const rateBps = Object.hasOwn(TAX_RATES_BPS, key) ? TAX_RATES_BPS[key] : undefined;
+  if (rateBps === undefined) {
+    throw new UnknownRegionError(region);
+  }
+  return rateBps;
+}
+
 /**
  * Calculates the tax owed on `taxableAmount` for `region`.
  *
  * @throws UnknownRegionError if we have no rate for the region.
  */
 export function calculateTax(taxableAmount: Cents, region: string): Cents {
-  const key = region.trim().toUpperCase();
-  const rateBps = Object.hasOwn(TAX_RATES_BPS, key) ? TAX_RATES_BPS[key] : undefined;
-  if (rateBps === undefined) {
-    throw new UnknownRegionError(region);
-  }
-  return percentOf(taxableAmount, rateBps);
+  return percentOf(taxableAmount, resolveTaxRate(region));
 }
