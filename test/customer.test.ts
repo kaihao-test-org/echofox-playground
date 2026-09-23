@@ -32,4 +32,27 @@ describe("createCustomer", () => {
       ValidationError,
     );
   });
+
+  it("keeps a tax exemption", () => {
+    const expiresAt = new Date("2025-01-01T00:00:00Z");
+    const customer = createCustomer({
+      name: "Acme",
+      email: "a@acme.test",
+      region: "US-CA",
+      taxExemption: { certificateId: " CA-RESALE-1 ", expiresAt },
+    });
+    expect(customer.taxExemption).toEqual({ certificateId: "CA-RESALE-1", expiresAt });
+    expect(customer.taxExemption?.expiresAt).not.toBe(expiresAt);
+  });
+
+  it("requires a certificate id for exemptions", () => {
+    expect(() =>
+      createCustomer({
+        name: "Acme",
+        email: "a@acme.test",
+        region: "US-CA",
+        taxExemption: { certificateId: "  " },
+      }),
+    ).toThrow(ValidationError);
+  });
 });
