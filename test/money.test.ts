@@ -3,6 +3,7 @@ import { ValidationError } from "../src/errors.js";
 import {
   addMoney,
   cents,
+  formatCents,
   formatMoney,
   multiplyMoney,
   parseMoney,
@@ -88,5 +89,23 @@ describe("formatMoney", () => {
 
   it("formats negative amounts and small values", () => {
     expect(formatMoney(-5, "EUR")).toBe("-0.05 EUR");
+  });
+});
+
+describe("formatCents", () => {
+  it("formats with thousands separators", () => {
+    expect(formatCents(123456)).toBe("$1,234.56");
+  });
+
+  it("formats negative small values", () => {
+    expect(formatCents(-5)).toBe("-$0.05");
+  });
+
+  it("formats zero", () => {
+    expect(formatCents(0)).toBe("$0.00");
+  });
+
+  it("rejects fractional cents", () => {
+    expect(() => formatCents(19.99)).toThrow(ValidationError);
   });
 });
