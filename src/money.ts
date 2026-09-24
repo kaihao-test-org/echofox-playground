@@ -84,12 +84,23 @@ export function percentOf(amount: Cents, basisPoints: number): Cents {
   return quotient;
 }
 
-/** Formats cents for display, e.g. `formatMoney(123456)` -> "1,234.56 USD". */
-export function formatMoney(amount: Cents, currency = "USD"): string {
+function splitForDisplay(amount: Cents): { sign: string; whole: string; fraction: string } {
   assertCents(amount);
   const sign = amount < 0 ? "-" : "";
   const abs = Math.abs(amount);
   const whole = Math.floor(abs / 100).toLocaleString("en-US");
   const fraction = String(abs % 100).padStart(2, "0");
+  return { sign, whole, fraction };
+}
+
+/** Formats cents for display, e.g. `formatMoney(123456)` -> "1,234.56 USD". */
+export function formatMoney(amount: Cents, currency = "USD"): string {
+  const { sign, whole, fraction } = splitForDisplay(amount);
   return `${sign}${whole}.${fraction} ${currency}`;
+}
+
+/** Formats cents as a US dollar string, e.g. `formatCents(123456)` -> "$1,234.56". */
+export function formatCents(amount: Cents): string {
+  const { sign, whole, fraction } = splitForDisplay(amount);
+  return `${sign}$${whole}.${fraction}`;
 }
